@@ -28,7 +28,8 @@ object SchoolModel:
       def setTeacherToCourse(teacher: Teacher, course: Course): School
       def coursesOfATeacher(teacher: Teacher): Sequence[Course]
 
-  object  BasicSchoolModule extends SchoolModule:
+  object BasicSchoolModule extends SchoolModule:
+
     private case class CourseImpl(name: String)
     private case class TeacherImpl(name: String, courses: Sequence[Course])
     private case class SchoolImpl(teachers: Sequence[Teacher], courses: Sequence[Course])
@@ -43,6 +44,7 @@ object SchoolModel:
       
       def addCourse(name: String): School = school match
         case School(teachers, courses) =>  SchoolImpl(teachers, Sequence.Cons(CourseImpl(name), courses))
+        
       def teacherByName(name: String): Optional[Teacher] = 
         def getTeacher(name: String, teachers:Sequence[TeacherImpl]): Optional[TeacherImpl] = teachers match
           case Sequence.Cons(TeacherImpl(t,y), _) if t == name => Optional.Just(TeacherImpl(t,y))
@@ -50,11 +52,22 @@ object SchoolModel:
           case Sequence.Nil() => Optional.Empty()
         getTeacher(name, school.teachers)
         
+      def courseByName(name: String): Optional[Course] =
+        def getCourse(name: String, courses:Sequence[CourseImpl]): Optional[CourseImpl] = courses match
+          case Sequence.Cons(CourseImpl(n), pr) if n == name => Optional.Just(CourseImpl(n))
+          case Sequence.Nil() => Optional.Empty()
+        getCourse(name, school.courses)
       
-      def courseByName(name: String): Optional[Course] = ???
-      def nameOfTeacher(teacher: Teacher): String = ???
-      def nameOfCourse(teacher: Teacher): String = ???
-      def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
-      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
+      def nameOfTeacher(teacher: Teacher): String = teacher.name
+      def nameOfCourse(course: Course): String = course.name
+      def setTeacherToCourse(teacher: Teacher, course: Course): School = 
+        val mapTeachers: Teacher => Teacher = (t) => (t, teacher) match
+            case (TeacherImpl(n1, c), TeacherImpl(n2, _)) if n1 == n2 => TeacherImpl(n1, Sequence.Cons(course, c))
+            case _ => t
+        school.match
+        case SchoolImpl(teachers, courses) if teachers != Sequence.Nil() && courses != Sequence.Nil() =>
+          SchoolImpl(Sequence.map(teachers: Sequence[TeacherImpl])(mapTeachers), courses)
+        case _ => school
 
+      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = teacher.courses
 
