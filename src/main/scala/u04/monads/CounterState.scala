@@ -1,11 +1,13 @@
 package u04.monads
 
 import States.*
+import u02.CaseMatch.v
 
 trait CounterState:
   type Counter
   def initialCounter(): Counter
   def inc(): State[Counter, Unit]
+  def set(v: Int): State[Counter, Unit]
   def dec(): State[Counter, Unit]
   def reset(): State[Counter, Unit]
   def get(): State[Counter, Int]
@@ -18,6 +20,7 @@ object CounterStateImpl extends CounterState:
 
   // giving (new_counter, result)
   def inc(): State[Counter, Unit] = State(i => (i + 1, ()));
+  def set(v: Int): State[Counter, Unit] = State(i => (v, ()));
   def dec(): State[Counter, Unit] = State(i => (i - 1, ()));
   def reset(): State[Counter, Unit] = State(i => (0, ()));
   def get(): State[Counter, Int] = State(i => (i, i));

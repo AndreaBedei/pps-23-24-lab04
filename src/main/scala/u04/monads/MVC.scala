@@ -11,8 +11,10 @@ package u04.monads
       ((sm2, sv2), av)
 
   def windowCreation(str: String): State[Window, Stream[String]] = for 
-    _ <- setSize(300, 300)
+    _ <- setSize(600, 450)
     _ <- addButton(text = "inc", name = "IncButton")
+    _ <- addButton(text = "set", name = "SetButton")
+    _ <- addTextField(text = "num", name = "TextFieldSet")
     _ <- addButton(text = "dec", name = "DecButton")
     _ <- addButton(text = "reset", name = "ResetButton")
     _ <- addButton(text = "quit", name = "QuitButton")
@@ -25,6 +27,7 @@ package u04.monads
     events <- mv(seq(reset(), get()), i => windowCreation(i.toString()))
     _ <- seqN(events.map(_ match
         case "IncButton" => mv(seq(inc(), get()), i => toLabel(i.toString, "Label1"))
+        case "SetButton" => mv(seq(set(5), get()), i => toLabel(i.toString, "Label1"))
         case "DecButton" => mv(seq(dec(), get()), i => toLabel(i.toString, "Label1"))
         case "ResetButton" => mv(seq(reset(), get()), i => toLabel(i.toString, "Label1"))
         case "QuitButton" => mv(nop(), _ => exec(sys.exit()))))
